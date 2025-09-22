@@ -1,0 +1,30 @@
+services:
+  minio:
+    image: minio/minio
+    container_name: minio
+    command: server /data --console-address ":9001"
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      MINIO_ROOT_USER: novacron
+      MINIO_ROOT_PASSWORD: ccproject
+    volumes:
+      - minio-data:/data
+
+  backend:
+    build: ./backend
+    container_name: backend
+    ports:
+      - "4000:4000"
+    depends_on:
+      - minio
+    environment:
+      MINIO_ENDPOINT: minio
+      MINIO_PORT: 9000
+      MINIO_ACCESS_KEY: novacron
+      MINIO_SECRET_KEY: ccproject
+
+volumes:
+  minio-data:
+    driver: local
